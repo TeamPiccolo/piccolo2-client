@@ -1,8 +1,14 @@
 piccolo_client package
 ======================
 
-Submodules
-----------
+Module contents
+---------------
+
+.. automodule:: piccolo_client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 piccolo_client.PiccoloBaseClient module
 ---------------------------------------
@@ -20,11 +26,3 @@ piccolo_client.PiccoloJSONRPCClient module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: piccolo_client
-    :members:
-    :undoc-members:
-    :show-inheritance:
