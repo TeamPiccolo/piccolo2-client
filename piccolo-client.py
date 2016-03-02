@@ -19,3 +19,6 @@ if __name__ == '__main__':
     at = datetime.datetime.now()+datetime.timedelta(seconds=5)
     end = at+datetime.timedelta(seconds=30)
     print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
+
+    print piccolo.piccolo.getClock()
+    print piccolo.piccolo.setClock(clock='2017-10-2')
