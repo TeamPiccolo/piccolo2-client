@@ -12,6 +12,9 @@ if __name__ == '__main__':
     
     piccolo = PiccoloJSONRPCClient(args.piccolo_url)
     
+    #if not piccolo.piccolo.isMountedDataDir():
+    #    piccolo.piccolo.mountDatadir()
+
     print piccolo.components
     print piccolo.piccolo.info()
     print piccolo.piccolo.ping()
@@ -20,5 +23,10 @@ if __name__ == '__main__':
     end = at+datetime.timedelta(seconds=30)
     print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
 
-    print piccolo.piccolo.getClock()
-    print piccolo.piccolo.setClock(clock='2017-10-2')
+    #print piccolo.piccolo.getClock()
+    #print piccolo.piccolo.setClock(clock='2017-10-2')
+
+    print piccolo.piccolo.isMountedDataDir()
+
+    if piccolo.piccolo.isMountedDataDir():
+        piccolo.piccolo.umountDatadir()
