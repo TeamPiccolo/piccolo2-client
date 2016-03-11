@@ -28,5 +28,18 @@ if __name__ == '__main__':
 
     print piccolo.piccolo.isMountedDataDir()
 
-    if piccolo.piccolo.isMountedDataDir():
-        piccolo.piccolo.umountDatadir()
+    #piccolo.upwelling.open_close(milliseconds=3000)
+    #piccolo.downwelling.open_close(milliseconds=3000)
+    #print piccolo.upwelling.info()
+
+    piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test1',milliseconds=2000)
+    piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test3',milliseconds=3000)
+
+    piccolo.piccolo.record(delay=5,nCycles=5)
+    
+    at = datetime.datetime.now()+datetime.timedelta(seconds=120)
+    piccolo.piccolo.record(delay=5,nCycles=2,at_time=at.isoformat())
+    
+
+    #if piccolo.piccolo.isMountedDataDir():
+    #    piccolo.piccolo.umountDatadir()
