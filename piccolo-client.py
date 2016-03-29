@@ -19,9 +19,14 @@ if __name__ == '__main__':
     print piccolo.piccolo.info()
     print piccolo.piccolo.ping()
 
+    print 'njobs',piccolo.scheduler.njobs()
+
     at = datetime.datetime.now()+datetime.timedelta(seconds=5)
     end = at+datetime.timedelta(seconds=30)
     print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
+
+    print 'njobs',piccolo.scheduler.njobs()
+    print piccolo.scheduler.getJob(jid=0)
 
     #print piccolo.piccolo.getClock()
     #print piccolo.piccolo.setClock(clock='2017-10-2')
