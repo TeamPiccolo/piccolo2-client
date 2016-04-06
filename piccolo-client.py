@@ -1,6 +1,6 @@
 #!/bin/env python
 
-from piccolo_client import PiccoloJSONRPCClient
+from piccolo2.client import PiccoloJSONRPCClient
 import datetime
 import argparse
 
