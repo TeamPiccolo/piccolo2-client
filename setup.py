@@ -9,4 +9,10 @@ setup(
         "piccolo2-common",
         "python-jsonrpc"
     ],
+
+    # metadata for upload to PyPI
+    author = "Magnus Hagdorn, Alasdair MacArthur, Iain Robinson",
+    description = "Part of the piccolo2 system. This package provides the client libraries",
+    license = "GPL",
+    url = "https://bitbucket.org/uoepiccolo/piccolo2-client",
 )
