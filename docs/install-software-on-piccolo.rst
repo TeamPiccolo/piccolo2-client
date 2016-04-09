@@ -1,5 +1,6 @@
-Installation
-************
+**********************************
+Installing software on the Piccolo
+**********************************
 
 The Piccolo includes a Raspberry Pi which runs *Piccolo Server*. This software controls the Piccolo's hardware (spectrometers, shutters, ...), handles the recording of data, and provides an application programming interface that can be used to control the Piccolo. The Piccolo is usually remotely-controlled from a laptop via a network or radio link.
 
@@ -14,6 +15,10 @@ The Raspberry Pi is a miniature computer which runs an operating system, *Raspbi
 *Raspbian* can be obtained from the `downloads page <https://www.raspberrypi.org/downloads>`_ at the `Raspberry Pi Foundation <https://www.raspberrypi.org/>`_. At the time of writing, the latest version is *Raspbian Jessie*, released on 18th March 2016. (*Raspbian Jessie Lite* has not been tested with the Piccolo.)
 
 Download the zip (or Torrent) file and follow `their instructions <https://www.raspberrypi.org/documentation/installation/installing-images/README.md>` instructions to image it onto a memory (SD) card.
+
+.. warning::
+
+Ensure Raspbian is written to the memory card and not the hard drive.
 
 ==============
 Python version

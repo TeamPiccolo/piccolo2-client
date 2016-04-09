@@ -11,9 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   installation
-
-
+   introduction
+   install-software-on-piccolo
+   install-software-on-laptop
+   programming
+   modules
 
 Indices and tables
 ==================
