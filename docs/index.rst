@@ -11,11 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   introduction
-   install-software-on-piccolo
-   install-software-on-laptop
+   introducing
+   installing
    programming
-   modules
+.. Temporarily commented out the modules section as it caused import errors.
+.. Possibly the PYTHONPATH needs to be set up before it will compile this part
+.. of the documentation.
+.. modules
 
 Indices and tables
 ==================

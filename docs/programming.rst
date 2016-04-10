@@ -1,20 +1,15 @@
-***********************
-Programming the Piccolo
-***********************
+***********
+Programming
+***********
 
-The Piccolo software has two parts:
+The Piccolo has an application programming interface (API).
 
-* Server
-* Client
+The API uses `CherryPy <http://www.cherrypy.org/>`_.
 
-The server, *Piccolo Server*, runs on the Raspberry Pi that is part of the Piccolo. The client, *Piccolo Client*, can be run either on the Raspberry Pi or on a remote computer such as a laptop. If run on a remote computer there must be a network connection available to the Piccolo.
+==========
+Dispatcher
+==========
 
-======
-Server
-======
+The dispatcher is a Python object (class name ``PiccoloDispatcher``) that receives instructions from the laptop or other sources and passes them on the instruments. There can only be one dispatcher running at any one time. It is possible to run the dispatcher in a background thread.
 
-*Piccolo Server* provides an application programming interface (API) to the Piccolo that can be accessed over a network connection.
-
-======
-Client
-======
+.. image:: images/class-diagrams/PiccoloDispatcher.png

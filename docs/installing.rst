@@ -1,6 +1,6 @@
-**********************************
-Installing software on the Piccolo
-**********************************
+**********
+Installing
+**********
 
 The Piccolo includes a Raspberry Pi which runs *Piccolo Server*. This software controls the Piccolo's hardware (spectrometers, shutters, ...), handles the recording of data, and provides an application programming interface that can be used to control the Piccolo. The Piccolo is usually remotely-controlled from a laptop via a network or radio link.
 
