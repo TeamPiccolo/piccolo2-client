@@ -46,7 +46,7 @@ Use the `Raspberry Pi configuration tool <https://www.raspberrypi.org/documentat
 
 Select ``Expand Filesystem``.
 
-Select ``Change User Password`` and enter a new password. The default password is `raspberry`, but this may be insecure if the Raspberry Pi is connected to a network.
+Select ``Change User Password`` and enter a new password. The default password is ``raspberry``, but this may be insecure if the Raspberry Pi is connected to a network.
 
 Select ``Boot Options`` and then ``Console Autologin``.
 
@@ -58,11 +58,11 @@ Select ``Finish``. When asked ``Would you like to reboot now?``` answer ``Yes``.
 Check packages are up to date
 =============================
 
-Type::
+The ``apt-get`` tool allows software to be installed onto the Raspberry Pi directly from its internet connection. To do this it maintains a local package list which needs occasionally to be updated. Type::
 
   sudo apt-get update
 
-Enter the password when prompted.
+Enter the password when prompted. (If the The Raspberry Pi password was not changed in the previous step, it will still be ``raspberry``.)
 
 =================
 Install Mercurial
@@ -70,96 +70,109 @@ Install Mercurial
 
 This step is optional.
 
-*Mercurial* is a source code management tool. It is useful to developers of the Piccolo software to quickly upload and download source code from Bitbucket.
+*Mercurial* is a source code management tool. It is useful to developers of the Piccolo software to quickly upload and download source code from `Bitbucket <http://bitbucket.org/>`_, the web site which holds the development version of the software.
 
 To install Mercurial type::
 
  sudo apt-get install mercurial
 
+If asked ``Do you want to continue? [Y/n]`` answer ``Y`` for yes.
+
 ============================
 Install Piccolo common files
 ============================
 
-*Piccolo Common* contains on the specification of the *Pico* file format used by the Piccolo.
+*Piccolo Common* contains the specification of the *Pico* file format used by the Piccolo.
 
-Copy the `piccolo-common` files onto the Raspberry Pi and type::
+Copy the ``piccolo2-common`` files onto the Raspberry Pi and type::
 
- cd piccolo-common
+ cd piccolo2-common
  sudo python setup.py install
 
 The files are installed in ``/usr/local/lib/python2.7/dist-packages/piccolo2_common-0.1-py2.7.egg``.
 
-======================
-Install Piccolo Server
-======================
+==============
+Install psutil
+==============
 
 The *psutil* Python module is required by Piccolo Server for monitoring. Type::
 
   sudo apt-get install python-psutil
 
-(**Note**: *psutil* cannot be installed on Ubuntu with *pip*. It reports that a file called *Python.h* is missing.)
+This module must be installed with ``apt-get``.
+
+=================
+Install configobj
+=================
+
+*ConfigObj* is a Python module for reading configuration files, more often known as *ini* files on Windows systems. It is required by the Piccolo software to read the *server configuration file*. To install it type::
+
+  sudo apt-get install python-configobj
+
+=================
+Install pyjsonrpc
+=================
 
 Type::
 
- cd piccolo-server
- sudo python setup.py install
+  sudo pip install python-jsonrpc
+
+To test the installation::
+
+  python
+  import pyjsonrpc
+  quit()
+
+======================
+Install Piccolo Server
+======================
+
+Copy the ``piccolo-server`` files onto the Raspberry Pi.
+
+Type::
+
+  cd piccolo-server
+  sudo python setup.py install
 
 This will use the Raspberry Pi's internet connection to download and install a number of Python modules.
 
+If the following error mesage occurs::
+
+  warning: no previously-included files matching '*' found under directory 'docs/_build'
+  psutil/_psutil_linux.c:12:20: fatal error: Python.h: No such file or directory
+  #include <Python.h>
+                     ^
+  compilation terminated.
+  error: Setup script exited with error: command 'arm-linux-gnueabihf-gcc' failed with exit status 1
+
+then go back to the previous step and ensure that ``psutil`` is installed.
+
+As well as installing *Piccolo Server* a number of Python modules are downloaded form the internet and installed on the Raspberry Pi. These modules are used by *Piccolo Server*.
+
 *CherryPy* is a small web framework for Python. It allows the Piccolo software to use an application programming interface based on popular and standard protocols designed for the world-wide web.
 
-*ConfigObj* is a Python module for reading configuration files, more often known as *ini* files on Windows systems. It is required by the Piccolo software to read the *server configuration file*.
+*docutils* is text processing system used that is commonly used to help with the preparation of documentation for Python modules.
 
-Some other modules installed include:
+*lockfile* handles file locking.
 
-* docutils
-* lockfile
-* pbr
-* python-daemon
+*pbr* is part of a tool for setting up and install Python modules.
+
+*python-daemon* is used to create services which run in the background.
+
+Most of the files are installed in the directory ``/usr/local/lib/python2.7/dist-packages/``.
 
 ==================
 Run Piccolo server
 ==================
 
-There are a number of different ways to start *Piccolo server*. If *Piccolo server* is not already started, it can run from a terminal by typing::
-
-  python pserver.py
-
-This should produce the error message::
-
-  no such configuration file
-
-===========================
-Create a configuraiton file
-===========================
-
-The default configuration file can be found in this location::
-
-  /home/pi/piccolo2-server/pdata/piccolo.config
-
-The shutter channels upwelling and downwelling must be defined. (Channel names should be case insensitive, so upwelling and Upwelling refer to the same channel.)
-
-=========================================
-Add *Piccolo Server* to the *Python path*
-=========================================
-
-This step should be unnecessary, unless Python cannot find modules. Type::
-
-  export PYTHONPATH=/home/pi/piccolo/piccolo_server
-
-==============
-Piccolo Server
-==============
-
-Once the configuration file is in place, Piccolo server can be started. The Piccolo server script can only be run from the ``piccolo2-server`` directory::
+Before starting Piccolo server it is important to be in the correct directory so that it can find the configuration file. Type::
 
   cd /home/pi/piccolo2-server
+  python piccolo2/pserver.py
 
-Then type::
+Attempting to run ``pserver.py`` from any other directory will produce an error message::
 
-  python piccolo2/piccolo-server.py
-
-If ``piccolo2-server.py`` is run from the wrong directory it will be unable to find the configuration file.
+  RuntimeError: no such configuration file /home/pi/Piccolo/piccolo2-server/piccolo2/pdata/piccolo.config
 
 A number of messages should appear, including::
 
