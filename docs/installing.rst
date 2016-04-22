@@ -182,3 +182,61 @@ A number of messages should appear, including::
 This final message indicates that *Piccolo Server* is running, and that the address to which commands should be sent is (the default)::
 
   http://localhost:8080
+
+==================================
+Install Python on a Windows laptop
+==================================
+
+There are several versions of Python available for Windows. This documentation covers only one version, but it should work with any. The Windows laptop must have an internet connection in order to install the Python modules.
+
+Download and install Python from the `Python web site <http://www.python.org>`_. The ``Windows x86-64 MSI installer`` is the easiest to install.
+
+.. image:: images/screenshots/windows_download_python.png
+
+Python can be installed to any directory. This documentation assumes it is installed in the default directory ``C:\Python27``.
+
+============================
+Install Piccolo common files
+============================
+
+Download the ``piccolo2-common`` files to the Windows laptop. Open a ``Command Prompt`` and type::
+
+  cd C:\Users\Iain\Documents\Piccolo\piccolo2-common
+  python setup.py install
+
+Replace ``\Users\Iain\Documents\Piccolo\piccolo2-common`` in the above with the path to the directory containing ``piccolo2-common``.
+
+.. image:: images/screenshots/windows_setup_piccolo_common.png
+
+This will install the Piccolo common files as an *egg file* in ``C:\Python27\Lib\site-packages\piccolo2-common-0.1-py2.7.egg``. An egg file is a compressed archive containing Python code.
+
+======================
+Install Piccolo Client
+======================
+
+Download the ``piccolo2-client`` files to the Windows laptop. Open a ``Command Prompt`` and type::
+
+  cd C:\Users\Iain\Documents\Piccolo\piccolo2-client
+  python setup.py install
+
+This will download some additional Python modules from the internet and install them:
+
+* *python-jsonrpc*
+* *bunch*
+
+The *Python JSON RPC module* was described in a previous step. *bunch* is data structure used by Piccolo Client.
+
+The downloaded modules and the *Piccolo Client* egg file (``piccolo2_client-0.1-py2.7.egg``) will be installed in ``C:\Python27\Lib\site-packages``.
+
+==================
+Run Piccolo Client
+==================
+
+Run *Piccolo Client* by typing::
+
+ cd C:\Users\Iain\Documents\Piccolo\piccolo2-client
+ python piccolo-client.py
+
+This should produce a connection error::
+
+ urllib2.URLError: <urlopen error [Errno 10061] No connection could be made because the target machine actively refused it>
