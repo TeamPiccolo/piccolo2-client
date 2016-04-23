@@ -161,9 +161,9 @@ As well as installing *Piccolo Server* a number of Python modules are downloaded
 
 Most of the files are installed in the directory ``/usr/local/lib/python2.7/dist-packages/``.
 
-==================
-Run Piccolo server
-==================
+===================
+Test Piccolo server
+===================
 
 Before starting Piccolo server it is important to be in the correct directory so that it can find the configuration file. Type::
 
@@ -182,6 +182,45 @@ A number of messages should appear, including::
 This final message indicates that *Piccolo Server* is running, and that the address to which commands should be sent is (the default)::
 
   http://localhost:8080
+
+Type Ctrl-C to terminate *Piccolo Server*. This typically takes a few seconds.
+
+==============================
+Select the IP address and port
+==============================
+
+Whilst Piccolo Server is running on (*binding to*) the ``localhost`` address (usually ``127.0.0.1``) it will not (at least not always) be accessible to other machines on the network. To remedy this, Piccolo Server needs to run on the Internet Protocol (IP) address of the Raspberry Pi.
+
+To find out the IP address of the Raspberry Pi type::
+
+ ip addr
+
+The result of this command is a list of network interfaces. The IP address should be in this list. This will be different for different networks. As an example, if the Raspberry Pi is connected to the network wirelessly, the IP address will be given under the wireless adapters list ``wlan0``::
+
+ 3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+     link/ether a0:f3:c1:1d:ff:b0 brd ff:ff:ff:ff:ff:ff
+     inet 172.16.1.113/24 brd 172.16.1.255 scope global wlan0
+        valid_lft forever preferred_lft forever
+     inet6 fe80::e4ec:c07:79ff:92d7/64 scope link
+        valid_lft forever preferred_lft forever
+
+In the above case, the IP address of the Raspberry Pi is ``172.16.1.113``.
+
+To verify that the correct IP address has been identify, try using it to connect to the Raspberry Pi with secure shell::
+
+ ssh pi@172.16.1.113
+
+If this opens a connection to the Raspberry Pi this confirms that ``172.16.1.113`` is the IP address of the Raspberry Pi (and not some other device on the network).
+
+==================
+Run Piccolo Server
+==================
+
+Run Piccolo Server on the IP address of the Raspberry Pi::
+
+ python piccolo2/pserver.py -u http://172.16.1.113:8885
+
+In the above ``8885`` is the port number to run the server on. The server can be run on any port that is not being used by another service. The default port is ``8080``.
 
 ==================================
 Install Python on a Windows laptop
@@ -228,6 +267,55 @@ The *Python JSON RPC module* was described in a previous step. *bunch* is data s
 
 The downloaded modules and the *Piccolo Client* egg file (``piccolo2_client-0.1-py2.7.egg``) will be installed in ``C:\Python27\Lib\site-packages``.
 
+============
+Install PyQt
+============
+
+*PyQt* is a module for creating graphical user interfaces in Python using the `Qt <http://www.qt.io>`_ application framework.
+
+Piccolo Player requires a module called pyqt-distutils. Install it first.
+
+On the Windows laptop type::
+
+ pip install pyqt-distutils
+
+Download and install PyQt. Qt is available for several different versions of Python. The Piccolo software is written in Python version 2.7, so download the installer for version 2.7 of Python.
+
+The installer installs the files in ``C:\Python27\Lib\site-packages\PyQt4``.
+
+.. image:: images/screenshots/windows_pyqt_download.png
+
+======================
+Install Piccolo Player
+======================
+
+Copy the ``piccolo-player`` files onto the Windows laptop and type::
+
+ cd C:\Users\Documents\Piccolo\piccolo2-player
+ python setup.py install
+
+Replace ``C:\Users\Documents\Piccolo\piccolo2-player`` in the above with the path to which the ``piccolo2-player`` was copied.
+
+======================
+Compile user interface
+======================
+
+Use ``pyuic4`` to compile the user interface files (which have the ``.ui`` extension) into Python files::
+
+ cd C:\Users\Iain\Documents\Piccolo\piccolo2-player\piccolo2\player
+ C:\python27\Lib\site-packages\PyQt4\pyuic4 connect.ui -o connect_ui.py
+ C:\python27\Lib\site-packages\PyQt4\pyuic4 player.ui -o player_ui.py
+ C:\python27\Lib\site-packages\PyQt4\pyuic4 schedulelist.ui -o schedulelist_ui.py
+ C:\python27\Lib\site-packages\PyQt4\pyuic4 schedule.ui -o schedule_ui.py
+
+==================
+Install Matplotlib
+==================
+
+The *Matplotlib* module is used to plot graphs in Python. Use *pip* to install *Matplotlib*::
+
+  C:\python27\Scripts\pip install matplotlib
+
 ==================
 Run Piccolo Client
 ==================
@@ -235,8 +323,19 @@ Run Piccolo Client
 Run *Piccolo Client* by typing::
 
  cd C:\Users\Iain\Documents\Piccolo\piccolo2-client
- python piccolo-client.py
+ python piccolo-client.py -u http://172.16.1.113:8885
 
-This should produce a connection error::
+In the above, replace ``172.16.1.113`` with the IP address of the Raspberry Pi, and ``8885`` with the port that Piccolo Server is running on.
 
- urllib2.URLError: <urlopen error [Errno 10061] No connection could be made because the target machine actively refused it>
+*Piccolo Client* will attempt to connect to *Piccolo Server* over the network. If the connection is successful, an output similar to this will be displayed::
+
+ [u'piccolo', u'upwelling', u'S___many__', u'scheduler', u'downwelling']
+ {u'status': u'idle', u'datadir': u'not mounted', u'virtual_memory': {u'used': 245760, u'percent': 0.2, u'free': 104607744, u'sout': 245760, u'total': 104853504, u'sin': 0}, u'hostname': u'raspberrypi', u'cpu_percent': 55.7}
+ pong
+ njobs 0
+ scheduled
+ njobs 1
+ {u'jid': 0, u'at_time': u'2016-04-22T22:19:01', u'interval': 5.0, u'job': [u'ping', u'piccolo', {}], u'end_time': u'2016-04-22T22:19:31', u'suspended': False}
+ False
+
+ The ``piccolo-client.py`` script by default instructs the Piccolo to start recording some spectra.
