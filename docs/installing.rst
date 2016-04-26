@@ -283,7 +283,7 @@ Download and install PyQt. Qt is available for several different versions of Pyt
 
 The installer installs the files in ``C:\Python27\Lib\site-packages\PyQt4``.
 
-.. image:: images/screenshots/windows_pyqt_download.png
+.. image:: images/screenshots/windows_download_pyqt_border.png
 
 ======================
 Install Piccolo Player
