@@ -1,6 +1,6 @@
 #!/bin/env python
 
-from piccolo2.client import PiccoloJSONRPCClient
+from piccolo2.client import PiccoloJSONRPCClient, PiccoloXbeeClient
 import datetime
 import argparse
 
@@ -8,9 +8,13 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-u','--piccolo-url',metavar='URL',default='http://localhost:8080',help='set the URL of the piccolo server, default http://localhost:8080')
+    parser.add_argument('-x','--xbee-address',metavar='ADR',help="xbee address")
     args = parser.parse_args()
-    
-    piccolo = PiccoloJSONRPCClient(args.piccolo_url)
+
+    if args.xbee_address!=None:
+        piccolo = PiccoloXbeeClient(args.xbee_address)
+    else:    
+        piccolo = PiccoloJSONRPCClient(args.piccolo_url)
     
     #if not piccolo.piccolo.isMountedDataDir():
     #    piccolo.piccolo.mountDatadir()

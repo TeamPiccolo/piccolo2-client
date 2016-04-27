@@ -15,3 +15,4 @@ execute the info method of the piccolo component
 from piccolo2.PiccoloSpectra import *
 from PiccoloBaseClient import *
 from PiccoloJSONRPCClient import *
+from PiccoloXbeeClient import *
