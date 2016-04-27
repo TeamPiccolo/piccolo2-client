@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'piccolo2'
-copyright = u'2016, Magnus Hagdorn, Iain Robinson'
+copyright = u'2016, Magnus Hagdorn, Alasdair Mac Arthur, Iain Robinson'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -102,7 +102,12 @@ autoclass_content = 'both'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+#
+# Iain Robinson changed the default theme to the "Read The Docs" theme. The
+# Piccolo documentation may later be hosted on the "Read The Docs" web site.
+# Using this HTML theme gives the documentation the same appearance that it
+# will later have on the "Read The Docs" web site.
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -110,7 +115,13 @@ html_theme = 'default'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+#
+# Iain Robinson added the directory shown below to the HTML theme path. One
+# his Ubuntu laptop the "Read The Docs" theme is not included in Sphinx, but
+# can be installed by typing "sudo apt-get install python-sphinx-rtd-theme".
+# Once installed the directory /usr/lib/python2.7/dist-packageds must be
+# added to the theme path so that Sphinx can find it.
+html_theme_path = ['/usr/lib/python2.7/dist-packages']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
