@@ -1,4 +1,8 @@
 2016-04-27 Magnus Hagdorn
+ * piccolo-client.py: add logging
+ * piccolo2/client/PiccoloXbeeClient.py: use new block read/write xbee methods
+
+2016-04-27 Magnus Hagdorn
  * piccolo-client.py: add option to use xbee client
  * piccolo2/client/__init__.py: import xbee client
  * piccolo2/client/PiccoloXbeeClient.py: first go at implementing xbee client

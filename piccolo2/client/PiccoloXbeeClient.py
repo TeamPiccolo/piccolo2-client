@@ -37,22 +37,9 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         """
 
         cmd = json.dumps((self._snr,command,component,keywords))
-        l = len(cmd)
-        n = l//self.CHUNK+1
-        for i in range(0,n):
-            s = i*self.CHUNK
-            e = min((i+1)*self.CHUNK,l)
-            self._rd.writeline(cmd[s:e],self._address)
-            time.sleep(0.1)
-        self._rd.writeline('ok',self._address)
-            
-        result = ''
-        res = 'nok'
-        while res!='ok':
-            res = self._rd.readline()
-            time.sleep(0.1)
-            if res=='ok':
-                break
-            result += res
-        
+
+        self._rd.writeBlock(cmd,self._address)
+
+        result = self._rd.readBlock()
+                
         return json.loads(result)

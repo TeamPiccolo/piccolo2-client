@@ -3,8 +3,16 @@
 from piccolo2.client import PiccoloJSONRPCClient, PiccoloXbeeClient
 import datetime
 import argparse
+import logging
 
 if __name__ == '__main__':
+
+    log = logging.getLogger("piccolo")
+    log.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(name)s: %(message)s')
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-u','--piccolo-url',metavar='URL',default='http://localhost:8080',help='set the URL of the piccolo server, default http://localhost:8080')
