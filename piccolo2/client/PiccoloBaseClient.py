@@ -4,6 +4,7 @@
 """
 
 __all__ = ["PiccoloClientError","PiccoloComponentClient","PiccoloBaseClient"]
+from piccolo2.PiccoloSpectra import PiccoloSpectraList
 
 class PiccoloClientError(RuntimeError):
     """
@@ -78,6 +79,9 @@ class PiccoloBaseClient(object):
         status,result = self.invoke(command,component,keywords)
         if status!='ok':
             raise PiccoloClientError, result
+        if command == 'getSpectra':
+            if not isinstance(result,PiccoloSpectraList):
+                result = PiccoloSpectraList(data=result)
         return result
 
     def __getattr__(self,attr):

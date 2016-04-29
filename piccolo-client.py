@@ -32,11 +32,13 @@ if __name__ == '__main__':
     if args.download_spectra != None:
         spectraList = piccolo.piccolo.getSpectraList()
         spectra = piccolo.piccolo.getSpectra(fname=spectraList[0])
-        n = 0
-        while spectra.chunk < spectra.NCHUNKS-1:
+        n = -1
+        while not spectra.complete:
             if n!=spectra.chunk:
+                n = spectra.chunk
                 print spectra.chunk,spectra.NCHUNKS
-                n=spectra.chunk
+        print 'done'
+        print len(spectra)
     else:
     
         print piccolo.components
