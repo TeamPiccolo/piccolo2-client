@@ -4,8 +4,9 @@ from PiccoloBaseClient import PiccoloBaseClient
 
 from piccolo2.hardware import radio
 from piccolo2.PiccoloWorkerThread import PiccoloWorkerThread
+from piccolo2.PiccoloSpectra import PiccoloSpectraList
 import threading
-from Queue import Queue
+from Queue import Queue, Empty
 import logging
 
 import json
@@ -17,30 +18,74 @@ class XbeeClientThread(PiccoloWorkerThread):
 
     LOGNAME = 'xbeeClient'
 
-    def __init__(self,address,panid,busy,tasks,results):
+    def __init__(self,address,panid,spectraCache,busy,tasks,results):
         PiccoloWorkerThread.__init__(self,'xbee',busy,tasks,results)
 
         self._rd = radio.APIModeRadio(panId=panid)
         self._snr = self._rd.getSerialNumber()
         self._address = address
+        self._spectraCache = spectraCache
+        self._spectraName = None
+        self._spectraChunk = -1
         
     def run(self):
         while True:
-            # wait for a new task from the task queue
-            task = self.tasks.get()
+            # check if we should be downloading data
+            if self._spectraChunk > -1:
+                self.log.debug('check if new command is available - otherwise continue downloding data')
+                block = False
+            else:
+                self.log.debug('waiting for new command')
+                block = True
+
+            try:
+                task = self.tasks.get(block)
+            except Empty:
+                # no new task so get on with downloading the next chunk
+                task = ('getSpectra','piccolo',{'fname':self._spectraName,'chunk':self._spectraChunk})
+                
+            # see if we got poison pill
             if task == None:
                 self.log.info('shutting down')
                 return
+
+            command,component,keywords = task
+
+            if command == 'status' and component == 'piccolo' and self._spectraChunk > -1:
+                # intercept status query during download
+                self.results.put(['ok','downloading data'])
+                continue                
+            
+            if command == 'getSpectra' and keywords['fname'] != self._spectraName:
+                self._spectraName = keywords['fname']
+                self._spectraChunk = 0
+                keywords['chunk'] = 0
+
+            cmd = json.dumps((self._snr,command,component,keywords))
+
+            # send command
+            self.busy.acquire()
+            self._rd.writeBlock(cmd,self._address)
+
+            # get results
+            result = json.loads(self._rd.readBlock())
+
+            if command == 'getSpectra':
+                if result[0]!='ok':
+                    raise RuntimeError, result[1]
+                self._spectraCache.setChunk(self._spectraChunk,result[1])
+                if self._spectraChunk == 0:
+                    # got the first chunk
+                    self.results.put(('ok',self._spectraCache))
+
+                self._spectraChunk += 1
+                if self._spectraChunk >= self._spectraCache.NCHUNKS:
+                    # got the entire file, reset
+                    self._spectraChunk = -1
             else:
-                command,component,keywords = task
-                cmd = json.dumps((self._snr,command,component,keywords))
-
-                self.busy.acquire()
-                self._rd.writeBlock(cmd,self._address)
-
-                result = self._rd.readBlock()
-                self.results.put(json.loads(result))
-                self.busy.release()
+                # normal command
+                self.results.put(result)
+            self.busy.release()
                 
 class PiccoloXbeeClient(PiccoloBaseClient):
     """communication via radio link"""
@@ -54,7 +99,9 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         self._busy = threading.Lock()
         self._tQ = Queue()
         self._rQ = Queue()
-        self._xbeeWorker = XbeeClientThread(address,panid,self._busy,self._tQ,self._rQ)
+        self._spectraCache = PiccoloSpectraList()
+        self._xbeeWorker = XbeeClientThread(address,panid,self._spectraCache,
+                                            self._busy,self._tQ,self._rQ)
 
         self._xbeeWorker.start()
         PiccoloBaseClient.__init__(self)
@@ -82,7 +129,7 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         if command == 'status' and component == 'piccolo':
             # catch the status command and divert if xbee is busy
             if self._busy.locked():
-                return 'communicating'
+                return ['ok','communicating']
 
         self._tQ.put((command,component,keywords))
 

@@ -1,3 +1,9 @@
+2016-04-29 Magnus Hagdorn
+ * piccolo-client.py: add option to try downloading spectra
+ * piccolo2/client/PiccoloXbeeClient.py: handle incoming spectra specially by
+   caching the spectra and checking for new commands after each chunk has been
+   received
+
 2016-04-28 Magnus Hagdorn
  * piccolo2/client/PiccoloXbeeClient.py: move xbee communication into a separate
    thread
