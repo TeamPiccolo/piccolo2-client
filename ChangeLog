@@ -1,4 +1,7 @@
 2016-04-29 Magnus Hagdorn
+ * piccolo2/client/PiccoloXbeeClient.py: add timeout
+
+2016-04-29 Magnus Hagdorn
  * piccolo-client.py: tidy up
  * piccolo2/client/PiccoloBaseClient.py: always return a SpectraList object
    when the getSpectra command is called

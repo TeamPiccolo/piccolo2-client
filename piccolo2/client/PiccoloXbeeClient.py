@@ -12,6 +12,7 @@ import logging
 import json
 import time
 import zlib
+import sys
 
 class XbeeClientThread(PiccoloWorkerThread):
     """xbee client thread"""
@@ -68,7 +69,14 @@ class XbeeClientThread(PiccoloWorkerThread):
             self._rd.writeBlock(cmd,self._address)
 
             # get results
-            result = json.loads(self._rd.readBlock())
+            try:
+                result = json.loads(self._rd.readBlock(timeoutInSeconds=10))
+            except:
+                self.log.error('{0} {1}: {2}'.format(task[1],task[0],sys.exc_info()[1].message))
+                result = 'nok',sys.exc_info()[1].message
+                self.results.put(result)
+                continue
+
 
             if command == 'getSpectra':
                 if result[0]!='ok':
