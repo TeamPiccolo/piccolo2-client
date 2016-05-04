@@ -6,6 +6,38 @@ The Piccolo has an application programming interface (API).
 
 The API uses `CherryPy <http://www.cherrypy.org/>`_.
 
+=========
+Bitbucket
+=========
+
+This section is optional.
+
+The `Bitbucket web site <http://bitbucket.org/>`_ is used to manage the open source Piccolo code. The Piccolo software is written entirely in the Python programming language. The Python modules which control and operate the Piccolo are open source. The hardware drivers for USB spectrometers, radios and shutters are closed source.
+
+As the Piccolo is distributed with open source software users may wish to modify or customize the included software to suit their own applications. *Bitbucket* is a web site that maintains a copy of the Piccolo source code and tracks any changes users' make to the code. It enables users who wish to to share their changes to the Piccolo source code, or additional software they have written, with other users. It is though not essential to use *Bitbucket* in order to operate or program the Piccolo.
+
+Version control software is required to use *Bitbucket*. The software synchronizes a copy of the Piccolo source code on a computer with the Bitbucket server. *Mercurial* (abbreviated ``hg`` after the chemical symbol for mercury) is the version control system used for the Piccolo. To copy code changes to the Piccolo server it must be installed on the computer. It can also be installed on the Raspberry Pi, if the Pi has a network connection. For instructions on installing Mercurial on the Raspberry Pi see the :ref:`installing-mercurial` section of the installation guide.
+
+A Bitbucket account is required.
+
+To commit a change to Bitbucket type::
+
+  hg commit -u "Iain Robinson <iain@physics.org>"
+
+replacing ``Iain Robinson <iain@physics.org>`` with the name and email address used in your Bitbucket account.
+
+This will open a text editor such as *Windows Notepad* or *nano*. Enter a commit message that describes the changes.
+
+.. attention:: Ensure your name and email address in above ``commit`` command are identical to those used for your *Bitbucket* account.
+
+The name and email address are used by Bitbucket to connect the commit message with the user account. To find out your usename and email address log into Bitbucket and click the user icon as shown below.
+
+.. image:: images/screenshots/bitbucket_username_and_email.png
+   :align: center
+   :alt: The user menu shows your name and email address.
+
+.. hint:: You edit your Mercurial settings file (``.hgrc``) to include your name, email address, default text editor and other settings.
+
 =============
 Spectrometers
 =============

@@ -64,6 +64,8 @@ The ``apt-get`` tool allows software to be installed onto the Raspberry Pi direc
 
 Enter the password when prompted. (If the The Raspberry Pi password was not changed in the previous step, it will still be ``raspberry``.)
 
+.. _installing-mercurial:
+
 =================
 Install Mercurial
 =================
@@ -307,6 +309,10 @@ Use ``pyuic4`` to compile the user interface files (which have the ``.ui`` exten
  C:\python27\Lib\site-packages\PyQt4\pyuic4 player.ui -o player_ui.py
  C:\python27\Lib\site-packages\PyQt4\pyuic4 schedulelist.ui -o schedulelist_ui.py
  C:\python27\Lib\site-packages\PyQt4\pyuic4 schedule.ui -o schedule_ui.py
+
+A better and quicker alternative to the method described above is to use the ``setup.py`` script::
+
+ python setup.py build_ui
 
 ==================
 Install Matplotlib
