@@ -1,0 +1,5 @@
+include README.md
+include COPYING
+include ChangeLog
+recursive-include docs *.rst *.py Makefile 
+recursive-include docs/images *
