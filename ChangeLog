@@ -1,3 +1,7 @@
+2016-05-17 Magnus Hagdorn
+ * piccolo2/client/PiccoloXbeeClient.py: do not die if hardware module is not
+   available
+
 2016-04-29 Magnus Hagdorn
  * piccolo2/client/PiccoloXbeeClient.py: add timeout
 

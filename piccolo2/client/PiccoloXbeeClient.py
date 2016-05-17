@@ -19,7 +19,13 @@ __all__ = ['PiccoloXbeeClient']
 
 from PiccoloBaseClient import PiccoloBaseClient
 
-from piccolo2.hardware import radio
+haveHardware = True
+try:
+    from piccolo2.hardware import radio
+except ImportError:
+    print 'Warning, cannot load hardware module'
+    haveHardware = False
+
 from piccolo2.PiccoloWorkerThread import PiccoloWorkerThread
 from piccolo2.PiccoloSpectra import PiccoloSpectraList
 import threading
@@ -39,7 +45,10 @@ class XbeeClientThread(PiccoloWorkerThread):
     def __init__(self,address,panid,spectraCache,busy,tasks,results):
         PiccoloWorkerThread.__init__(self,'xbee',busy,tasks,results)
 
-        self._rd = radio.APIModeRadio(panId=panid)
+        if haveHardware:
+            self._rd = radio.APIModeRadio(panId=panid)
+        else:
+            raise RuntimeError, 'piccolo2 hardware module not available'
         self._snr = self._rd.getSerialNumber()
         self._address = address
         self._spectraCache = spectraCache
