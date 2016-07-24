@@ -46,7 +46,8 @@ class XbeeClientThread(PiccoloWorkerThread):
         PiccoloWorkerThread.__init__(self,'xbee',busy,tasks,results)
 
         if haveHardware:
-            self._rd = radio.APIModeRadio(panId=panid)
+            # No serial port device is specified for the XBeeRadio class, so the port will be autodetected.
+            self._rd = radio.XBeeRadio()
         else:
             raise RuntimeError, 'piccolo2 hardware module not available'
         self._snr = self._rd.getSerialNumber()
@@ -54,7 +55,7 @@ class XbeeClientThread(PiccoloWorkerThread):
         self._spectraCache = spectraCache
         self._spectraName = None
         self._spectraChunk = -1
-        
+
     def run(self):
         while True:
             # check if we should be downloading data
@@ -70,7 +71,7 @@ class XbeeClientThread(PiccoloWorkerThread):
             except Empty:
                 # no new task so get on with downloading the next chunk
                 task = ('getSpectra','piccolo',{'fname':self._spectraName,'chunk':self._spectraChunk})
-                
+
             # see if we got poison pill
             if task == None:
                 self.log.info('shutting down')
@@ -81,8 +82,8 @@ class XbeeClientThread(PiccoloWorkerThread):
             if command == 'status' and component == 'piccolo' and self._spectraChunk > -1:
                 # intercept status query during download
                 self.results.put(['ok','downloading data'])
-                continue                
-            
+                continue
+
             if command == 'getSpectra' and keywords['fname'] != self._spectraName:
                 self._spectraName = keywords['fname']
                 self._spectraChunk = 0
@@ -120,7 +121,7 @@ class XbeeClientThread(PiccoloWorkerThread):
                 # normal command
                 self.results.put(result)
             self.busy.release()
-                
+
 class PiccoloXbeeClient(PiccoloBaseClient):
     """communication via radio link"""
 
@@ -129,7 +130,7 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         :param address: the address of the remote server
         :param panid: the panid"""
 
-        
+
         self._busy = threading.Lock()
         self._tQ = Queue()
         self._rQ = Queue()
@@ -139,7 +140,7 @@ class PiccoloXbeeClient(PiccoloBaseClient):
 
         self._xbeeWorker.start()
         PiccoloBaseClient.__init__(self)
-        
+
 
     def __del__(self):
         # send poison pill to worker
@@ -148,7 +149,7 @@ class PiccoloXbeeClient(PiccoloBaseClient):
 
     def invoke(self,command,component=None,keywords={}):
         """method used to call remote procedures
-        
+
         :param command: name of remote command
         :type command: str
         :param component: name of remote component
@@ -168,4 +169,3 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         self._tQ.put((command,component,keywords))
 
         return self._rQ.get()
-                
