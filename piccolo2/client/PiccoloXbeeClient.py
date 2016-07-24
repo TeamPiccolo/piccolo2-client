@@ -50,7 +50,7 @@ class XbeeClientThread(PiccoloWorkerThread):
             self._rd = radio.XBeeRadio()
         else:
             raise RuntimeError, 'piccolo2 hardware module not available'
-        self._snr = self._rd.getSerialNumber()
+        self._snr = self._rd.serialNumber
         self._address = address
         self._spectraCache = spectraCache
         self._spectraName = None
