@@ -24,6 +24,8 @@ try:
     from piccolo2.hardware import radio
 except ImportError:
     print 'Warning, cannot load hardware module'
+    print 'The above warning can be safely ignored if the (XBee) radio is not in use.'
+    print 'https://bitbucket.org/teampiccolo/piccolo/issues/82/warning-cannot-load-hardware-module'
     haveHardware = False
 
 from piccolo2.PiccoloWorkerThread import PiccoloWorkerThread
