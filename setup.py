@@ -26,6 +26,11 @@ setup(
         "piccolo2-common",
         "python-jsonrpc"
     ],
+    entry_points={
+        'console_scripts': [
+            'piccolo2-record = piccolo2.precord:main',
+        ],
+    },
 
     # metadata for upload to PyPI
     author = "Magnus Hagdorn, Alasdair MacArthur, Iain Robinson",
