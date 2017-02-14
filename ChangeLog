@@ -1,3 +1,7 @@
+2017-02-14 Magnus Hagdorn
+ * piccolo2/client/PiccoloBaseClient.py: when requesting status turn result 
+   into a status object
+
 2017-02-13 Magnus Hagdorn
  * piccolo2/precord.py: add simple program to record spectra
  * setup.py: add new program

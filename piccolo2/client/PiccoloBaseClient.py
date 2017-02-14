@@ -22,6 +22,7 @@
 
 __all__ = ["PiccoloClientError","PiccoloComponentClient","PiccoloBaseClient"]
 from piccolo2.PiccoloSpectra import PiccoloSpectraList
+from piccolo2.PiccoloStatus import PiccoloStatus
 
 class PiccoloClientError(RuntimeError):
     """
@@ -99,6 +100,9 @@ class PiccoloBaseClient(object):
         if command == 'getSpectra':
             if not isinstance(result,PiccoloSpectraList):
                 result = PiccoloSpectraList(data=result)
+        elif command == 'status':
+            if not isinstance(result,PiccoloStatus):
+                result = PiccoloStatus(result)
         return result
 
     def __getattr__(self,attr):
