@@ -58,9 +58,17 @@ class PiccoloBaseClient(object):
     """
     def __init__(self):
         self._components = {}
+        self._listenerID = self.call('getListenerID','piccolo')
         for c in self.call('components'):
             self._components[c] = PiccoloComponentClient(c,self)
 
+    def __del__(self):
+        self.call('removeListener','piccolo',keywords={"listener":self._listenerID})
+
+    @property
+    def listenerID(self):
+        return self._listenerID
+        
     @property
     def components(self):
         """get list of piccolo remote components"""
