@@ -68,33 +68,25 @@ def main():
         log.info('The data directory is not mounted.')
 
 
-    if args.auto_integration_time:
-        log.info('Setting integration times automatically...')
-        piccolo.piccolo.setIntegrationTimeAuto()
-
-        log.debug('Waiting for autointegration to complete...')
-        results = piccolo.piccolo.checkAutoIntegrationResults(block=True)
-        log.debug('Autointegration completed')
-    else:
-        integrationTimes = {}
-        for d in ['downwelling','upwelling']:
-            integrationTimes[d] = {}
-            for iTime in getattr(args,d):
-                tmp = iTime.split(':')
-                try:
-                    s = tmp[0]
-                    t = float(tmp[1])
-                except:
-                    parser.error("Cannot parse downwelling time %s"%iTime)
-                if s not in spectrometers:
-                    parser.error("Spectrometer %s not in list of spectormeters"%s)
-                integrationTimes[d][s] = t
-        if len(integrationTimes['downwelling'])>0 or len(integrationTimes['upwelling'])>0:
-            log.info('Setting integration times manually...')
-            for d in integrationTimes:
-                for s in integrationTimes[d]:
-                    piccolo.piccolo.setIntegrationTimeManual(
-                        shutter=d,spectrometer=s,milliseconds=integrationTimes[d][s])
+    integrationTimes = {}
+    for d in ['downwelling','upwelling']:
+        integrationTimes[d] = {}
+        for iTime in getattr(args,d):
+            tmp = iTime.split(':')
+            try:
+                s = tmp[0]
+                t = float(tmp[1])
+            except:
+                parser.error("Cannot parse downwelling time %s"%iTime)
+            if s not in spectrometers:
+                parser.error("Spectrometer %s not in list of spectormeters"%s)
+            integrationTimes[d][s] = t
+    if len(integrationTimes['downwelling'])>0 or len(integrationTimes['upwelling'])>0:
+        log.info('Setting integration times manually...')
+        for d in integrationTimes:
+            for s in integrationTimes[d]:
+                piccolo.piccolo.setIntegrationTimeManual(
+                    shutter=d,spectrometer=s,milliseconds=integrationTimes[d][s])
 
     # Whether auto or manual, write the integration times to the log.
     for s in spectrometers:
@@ -114,6 +106,7 @@ def main():
     log.info('Finished setting up port ')
 
     # Wait for the trigger input from the Pixhawk.
+    autoIntegrationDone = False
     while True: # This is an infinite loop!
         trigger = gpio.input(port)
         try:
@@ -123,8 +116,16 @@ def main():
            continue
 
         if trigger == 1 and not status.busy:
-
             log.info('Got trigger signal. Starting measurements.')
+
+            if not autoIntegrationDone and args.auto_integration_time:
+                log.info('Setting integration times automatically...')
+                piccolo.piccolo.setIntegrationTimeAuto()
+
+                log.debug('Waiting for autointegration to complete...')
+                results = piccolo.piccolo.checkAutoIntegrationResults(block=True)
+                log.debug('Autointegration completed')
+                autoIntegrationDone = True
 
             # delay is the time in seconds between recordings.
             piccolo.piccolo.record(delay=args.delay,nCycles=args.number_cycles)
