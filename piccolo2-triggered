@@ -102,19 +102,19 @@ for s in spectrometers:
 # Wait for the trigger input from the Pixhawk.
 while True: # This is an infinite loop!
     trigger = gpio.input(12)
-    if trigger:
-        log.warning('The trigger signal arrived immediately. This could indicate a problem.')
+    try:
+       status = piccolo.piccolo.status()
+    except:
+       log.warn('could not get status, trying again')
+       continue
+
+    if trigger == 1 and not status.busy:
+
+    	log.info('Got trigger signal. Starting measurements.')
+        
+    	# delay is the time in seconds between recordings.
+    	piccolo.piccolo.record(delay=5,nCycles=5)
     else:
-        log.info('Waiting for a trigger signal from the Pixhawk...')
-        trigger = gpio.input(12)
+        log.debug('waiting for trigger signal')
 
-    log.info('Got trigger signal. Starting measurements.')
-
-    # delay is the time in seconds between recordings.
-    piccolo.piccolo.record(delay=5,nCycles=5)
-
-    status = piccolo.piccolo.status()
-    while status.busy:
-        log.info('Waiting whilst recording.')
-        time.sleep(1)
-        status = piccolo.piccolo.status()
+    time.sleep(1)
