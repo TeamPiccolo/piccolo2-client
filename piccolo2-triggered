@@ -15,106 +15,110 @@ import logging
 import time
 import sys
 
-# Which port is the Pixhawk trigger signal connected to? It should be on GPIO
-# port 12, but can be moved if necessary, Avoid ports 5, 17, 18, 22, 23, 24, 25
-# and 27 as these are used by the Piccolo's shutters and LEDs.
-port = 12 # Should be on GPIO 12.
+def main()
+    # Which port is the Pixhawk trigger signal connected to? It should be on GPIO
+    # port 12, but can be moved if necessary, Avoid ports 5, 17, 18, 22, 23, 24, 25
+    # and 27 as these are used by the Piccolo's shutters and LEDs.
+    port = 12 # Should be on GPIO 12.
 
-# Set up logging.
-log = logging.getLogger("piccolo")
-log.setLevel(logging.DEBUG)
-handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(levelname)s: %(name)s: %(message)s')
-handler.setFormatter(formatter)
-log.addHandler(handler)
+    # Set up logging.
+    log = logging.getLogger("piccolo")
+    log.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(name)s: %(message)s')
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
 
-# Connect.
-log.info('Running Piccolo Client...')
-log.info('Connecting to Piccolo Server...')
-piccolo = PiccoloJSONRPCClient('http://localhost:8080')
+    # Connect.
+    log.info('Running Piccolo Client...')
+    log.info('Connecting to Piccolo Server...')
+    piccolo = PiccoloJSONRPCClient('http://localhost:8080')
 
-# Ping the Piccolo, to check that it is responding.
-piccolo.piccolo.ping()
+    # Ping the Piccolo, to check that it is responding.
+    piccolo.piccolo.ping()
 
-# Configure the GPIO port to receive a trigger signal from a Pixhawk autopilot.
-log.info('Setting port GPIO12 to receive the Pixhawk trigger...')
-gpio.setmode(gpio.BCM)
-gpio.setup(12, gpio.IN)
-trigger = gpio.input(12)
-if trigger:
-    # If the trigger signal is high initially this probably indicates an electronics problem. Check the connections. The LED
-    log.error('Cannot start Piccolo Client because the Pixhawk trigger signal is active (high). Check that the trigger signal from the Pixhawk is connected and that it is low. The Pixhawk trigger LED should be off.')
-    sys.exit(1)
-log.info('Finished setting up port ')
-
-#number_of_jobs = piccolo.scheduler.njobs()
-
-clock = piccolo.piccolo.getClock()
-log.info('The Piccolo clock is set to: {}'.format(clock))
-
-if piccolo.piccolo.isMountedDataDir():
-    log.info('The data directory is mounted.')
-else:
-    log.info('The data directory is not mounted.')
-
-# Now need a list of spectrometers. Note that spectrometer "names" are slightly
-# different to their serial numberrs. They generall start with "S_". Example:
-# "S_USB2H16355".
-spectrometers = piccolo.piccolo.getSpectrometerList()
-log.info('Spectrometer names are: {}'.format(', '.join(spectrometers)))
-
-# Set the integration times manually.
-log.info('Setting integration times manually...')
-piccolo.piccolo.setIntegrationTimeManual(
-    shutter='downwelling',
-    spectrometer='S_QEP00114',
-    milliseconds=2000
-)
-piccolo.piccolo.setIntegrationTimeManual(
-    shutter='upwelling',
-    spectrometer='S_QEP00114',
-    milliseconds=3000
-)
-piccolo.piccolo.setIntegrationTimeManual(
-    shutter='downwelling',
-    spectrometer='S_USB2H16355',
-    milliseconds=3000
-)
-piccolo.piccolo.setIntegrationTimeManual(
-    shutter='upwelling',
-    spectrometer='S_USB2H16355',
-    milliseconds=3000
-)
-
-# Alternatively, set the integration times automatically (may take a few seconds).
-#log.info('Setting integration times automatically...')
-#piccolo.piccolo.setIntegrationTimeAuto()
-
-#log.info('Waiting for autointegration to complete...')
-#results = piccolo.piccolo.checkAutoIntegrationResults(block=True)
-
-# Whether auto or manual, write the integration times to the log.
-for s in spectrometers:
-    up = piccolo.piccolo.getIntegrationTime(shutter='upwelling', spectrometer=s)
-    down = piccolo.piccolo.getIntegrationTime(shutter='downwelling', spectrometer=s)
-    log.info('Spectrometer {}, upwelling {} ms, downwelling {} ms'.format(s, up, down))
-
-# Wait for the trigger input from the Pixhawk.
-while True: # This is an infinite loop!
+    # Configure the GPIO port to receive a trigger signal from a Pixhawk autopilot.
+    log.info('Setting port GPIO12 to receive the Pixhawk trigger...')
+    gpio.setmode(gpio.BCM)
+    gpio.setup(12, gpio.IN)
     trigger = gpio.input(12)
-    try:
-       status = piccolo.piccolo.status()
-    except:
-       log.warn('could not get status, trying again')
-       continue
+    if trigger:
+        # If the trigger signal is high initially this probably indicates an electronics problem. Check the connections. The LED
+        log.error('Cannot start Piccolo Client because the Pixhawk trigger signal is active (high). Check that the trigger signal from the Pixhawk is connected and that it is low. The Pixhawk trigger LED should be off.')
+        sys.exit(1)
+    log.info('Finished setting up port ')
 
-    if trigger == 1 and not status.busy:
+    #number_of_jobs = piccolo.scheduler.njobs()
 
-    	log.info('Got trigger signal. Starting measurements.')
-        
-    	# delay is the time in seconds between recordings.
-    	piccolo.piccolo.record(delay=5,nCycles=5)
+    clock = piccolo.piccolo.getClock()
+    log.info('The Piccolo clock is set to: {}'.format(clock))
+
+    if piccolo.piccolo.isMountedDataDir():
+        log.info('The data directory is mounted.')
     else:
-        log.debug('waiting for trigger signal')
+        log.info('The data directory is not mounted.')
 
-    time.sleep(1)
+    # Now need a list of spectrometers. Note that spectrometer "names" are slightly
+    # different to their serial numberrs. They generall start with "S_". Example:
+    # "S_USB2H16355".
+    spectrometers = piccolo.piccolo.getSpectrometerList()
+    log.info('Spectrometer names are: {}'.format(', '.join(spectrometers)))
+
+    # Set the integration times manually.
+    log.info('Setting integration times manually...')
+    piccolo.piccolo.setIntegrationTimeManual(
+        shutter='downwelling',
+        spectrometer='S_QEP00114',
+        milliseconds=2000
+    )
+    piccolo.piccolo.setIntegrationTimeManual(
+        shutter='upwelling',
+        spectrometer='S_QEP00114',
+        milliseconds=3000
+    )
+    piccolo.piccolo.setIntegrationTimeManual(
+        shutter='downwelling',
+        spectrometer='S_USB2H16355',
+        milliseconds=3000
+    )
+    piccolo.piccolo.setIntegrationTimeManual(
+        shutter='upwelling',
+        spectrometer='S_USB2H16355',
+        milliseconds=3000
+    )
+
+    # Alternatively, set the integration times automatically (may take a few seconds).
+    #log.info('Setting integration times automatically...')
+    #piccolo.piccolo.setIntegrationTimeAuto()
+
+    #log.info('Waiting for autointegration to complete...')
+    #results = piccolo.piccolo.checkAutoIntegrationResults(block=True)
+
+    # Whether auto or manual, write the integration times to the log.
+    for s in spectrometers:
+        up = piccolo.piccolo.getIntegrationTime(shutter='upwelling', spectrometer=s)
+        down = piccolo.piccolo.getIntegrationTime(shutter='downwelling', spectrometer=s)
+        log.info('Spectrometer {}, upwelling {} ms, downwelling {} ms'.format(s, up, down))
+
+    # Wait for the trigger input from the Pixhawk.
+    while True: # This is an infinite loop!
+        trigger = gpio.input(12)
+        try:
+           status = piccolo.piccolo.status()
+        except:
+           log.warn('could not get status, trying again')
+           continue
+
+        if trigger == 1 and not status.busy:
+
+            log.info('Got trigger signal. Starting measurements.')
+
+            # delay is the time in seconds between recordings.
+            piccolo.piccolo.record(delay=5,nCycles=5)
+        else:
+            log.debug('waiting for trigger signal')
+
+        time.sleep(1)
+
+if __name__ == '__main__':
+    main()
