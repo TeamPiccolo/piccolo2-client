@@ -29,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             'piccolo2-record = piccolo2.precord:main',
+            'piccolo2-triggered = piccolo2.ptriggered:main',
         ],
     },
 
