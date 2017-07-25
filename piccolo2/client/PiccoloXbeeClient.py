@@ -23,12 +23,16 @@ haveHardware = True
 try:
     from piccolo2.hardware import radio
 except ImportError:
-    print 'Warning, cannot load hardware module'
-    haveHardware = False
+    try:
+        from piccolo2_hardware.hardware import radio
+    except ImportError:
+        print 'Warning, cannot load hardware module'
+        haveHardware = False
 
 from piccolo2.PiccoloWorkerThread import PiccoloWorkerThread
 from piccolo2.PiccoloSpectra import PiccoloSpectraList
 import threading
+import traceback
 from Queue import Queue, Empty
 import logging
 
@@ -42,19 +46,45 @@ class XbeeClientThread(PiccoloWorkerThread):
 
     LOGNAME = 'xbeeClient'
 
-    def __init__(self,address,panid,spectraCache,busy,tasks,results):
+    def __init__(self,address,panid,spectraCache,busy,tasks,results,baudrate=115200):
         PiccoloWorkerThread.__init__(self,'xbee',busy,tasks,results)
 
         if haveHardware:
             # No serial port device is specified for the XBeeRadio class, so the port will be autodetected.
-            self._rd = radio.XBeeRadio()
+            try:
+                self._rd = radio.XBeeRadio(baudrate=baudrate)
+                if address:
+                    self._address = address
+                else: 
+                    #discover nodes on the network
+                    self._nodes = self._rd.discoverNodes()
+
+                    if len(self._nodes) == 0:
+                        self.log.error("could not detect any nodes in network")
+                        #don't do that!
+                        #sys.exit(-1)
+                        raise IOError("could not detect any nodes in network")
+
+                    # default address to first discovered node
+                    firstNode = self._nodes[0]
+
+                    self._address = firstNode['addr_64b']
+                
+                self._snr = self._rd.serialNumber
+                self.log.info("Radio SerialNumber:{}".format(self._snr))
+
+            except Exception as e:
+                print "XbeeClientThread init Exception", e
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback, limit=10, file=sys.stdout)
+                sys.exit(-1)
         else:
             raise RuntimeError, 'piccolo2 hardware module not available'
         self._snr = self._rd.serialNumber
-        self._address = address
         self._spectraCache = spectraCache
         self._spectraName = None
         self._spectraChunk = -1
+        self.daemon=True
 
     def run(self):
         while True:
@@ -97,7 +127,7 @@ class XbeeClientThread(PiccoloWorkerThread):
 
             # get results
             try:
-                result = json.loads(self._rd.readBlock(timeoutInSeconds=10))
+                result = json.loads(self._rd.readBlock(timeoutInSeconds=120))
             except:
                 self.log.error('{0} {1}: {2}'.format(task[1],task[0],sys.exc_info()[1].message))
                 result = 'nok',sys.exc_info()[1].message
@@ -125,7 +155,7 @@ class XbeeClientThread(PiccoloWorkerThread):
 class PiccoloXbeeClient(PiccoloBaseClient):
     """communication via radio link"""
 
-    def __init__(self,address,panid='2525'):
+    def __init__(self,baudrate=115200,address=None,panid='2525'):
         """
         :param address: the address of the remote server
         :param panid: the panid"""
@@ -136,11 +166,17 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         self._rQ = Queue()
         self._spectraCache = PiccoloSpectraList()
         self._xbeeWorker = XbeeClientThread(address,panid,self._spectraCache,
-                                            self._busy,self._tQ,self._rQ)
+                                self._busy,self._tQ,self._rQ,baudrate=baudrate)
 
         self._xbeeWorker.start()
         PiccoloBaseClient.__init__(self)
 
+    def getNodes(self):
+        return self._xbeeWorker._nodes
+
+    # Change Node Address
+    def setAddress(self, addr_64bit):
+        self._xbeeWorker._address = addr_64bit
 
     def __del__(self):
         # send poison pill to worker
