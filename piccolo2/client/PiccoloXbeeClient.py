@@ -84,6 +84,7 @@ class XbeeClientThread(PiccoloWorkerThread):
         self._spectraCache = spectraCache
         self._spectraName = None
         self._spectraChunk = -1
+        self._gotDisconnected = False
         self.daemon=True
 
     def run(self):
@@ -114,30 +115,40 @@ class XbeeClientThread(PiccoloWorkerThread):
                 self.results.put(['ok','downloading data'])
                 continue
 
-            if command == 'getSpectra' and keywords['fname'] != self._spectraName:
+            if command == 'getSpectra' and (keywords['fname'] == ''
+                    or keywords['fname'] != self._spectraName):
                 self._spectraName = keywords['fname']
                 self._spectraChunk = 0
                 keywords['chunk'] = 0
 
             cmd = json.dumps((self._snr,command,component,keywords))
-
+            print("CMD: "+cmd)
             # send command
             self.busy.acquire()
-            self._rd.writeBlock(cmd,self._address)
+            try:
+                self._rd.writeBlock(cmd,self._address)
+            except Exception as e:
+                self.log.error('Failed to write radio block: {0}'.format(e))
+                result = 'nok',sys.exc_info()[1].message
+                self.results.put(result)
+                self.busy.release()
+                return
+                
 
             # get results
             try:
-                result = json.loads(self._rd.readBlock(timeoutInSeconds=120))
+                result = json.loads(self._rd.readBlock(timeoutInSeconds=10))
             except:
                 self.log.error('{0} {1}: {2}'.format(task[1],task[0],sys.exc_info()[1].message))
                 result = 'nok',sys.exc_info()[1].message
                 self.results.put(result)
-                continue
-
+                self.busy.release()
+                return
 
             if command == 'getSpectra':
                 if result[0]!='ok':
                     raise RuntimeError, result[1]
+                print(result[1])
                 self._spectraCache.setChunk(self._spectraChunk,result[1])
                 if self._spectraChunk == 0:
                     # got the first chunk
@@ -204,4 +215,5 @@ class PiccoloXbeeClient(PiccoloBaseClient):
 
         self._tQ.put((command,component,keywords))
 
-        return self._rQ.get()
+        result = self._rQ.get()
+        return result
