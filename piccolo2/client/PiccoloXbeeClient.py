@@ -122,7 +122,6 @@ class XbeeClientThread(PiccoloWorkerThread):
                 keywords['chunk'] = 0
 
             cmd = json.dumps((self._snr,command,component,keywords))
-            print("CMD: "+cmd)
             # send command
             self.busy.acquire()
             try:
@@ -148,7 +147,6 @@ class XbeeClientThread(PiccoloWorkerThread):
             if command == 'getSpectra':
                 if result[0]!='ok':
                     raise RuntimeError, result[1]
-                print(result[1])
                 self._spectraCache.setChunk(self._spectraChunk,result[1])
                 if self._spectraChunk == 0:
                     # got the first chunk
