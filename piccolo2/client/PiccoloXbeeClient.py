@@ -115,11 +115,17 @@ class XbeeClientThread(PiccoloWorkerThread):
                 self.results.put(['ok','downloading data'])
                 continue
 
-            if command == 'getSpectra' and (keywords['fname'] == ''
+            if command == 'getSpectra' and (keywords.get('simplify',False)
                     or keywords['fname'] != self._spectraName):
                 self._spectraName = keywords['fname']
                 self._spectraChunk = 0
                 keywords['chunk'] = 0
+                if keywords.get('simplify',False):
+                    #simplified spectra are small enough to fit in one transmission
+                    self._spectraCache._NCHUNKS = 1
+                else:
+                    self._spectraCache._NCHUNKS = PiccoloSpectraList._NCHUNKS 
+
 
             cmd = json.dumps((self._snr,command,component,keywords))
             # send command
