@@ -1,4 +1,8 @@
 2017-11-06 Magnus Hagdorn
+ * piccolo2/precord.py: add option to print version
+ * piccolo2/ptriggered.py: ditto and rename
+
+2017-11-06 Magnus Hagdorn
  * piccolo2/client/__init__.py: set __version__
  * setup.py: get version from hg tag
 

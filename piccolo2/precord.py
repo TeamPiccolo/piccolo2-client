@@ -20,6 +20,7 @@ import datetime
 import argparse
 import logging
 import time
+import sys
 
 def main():
     parser = argparse.ArgumentParser()
@@ -29,9 +30,15 @@ def main():
     parser.add_argument('--debug', action='store_true',default=False,help="enable debugging output")
     parser.add_argument('-n','--number-cycles',metavar='N',type=int,default=1,help="set the number of cycles, default=1")
     parser.add_argument('-d','--delay',type=float,metavar='D',default=0.,help="delay between measurements in ms, default=0")
+    parser.add_argument('-v','--version',action='store_true',default=False,help="print version and exit")
 
     args = parser.parse_args()
 
+    if args.version:
+        from client import __version__
+        print __version__
+        sys.exit(0)
+    
     log = logging.getLogger("piccolo")
     if args.debug:
         log.setLevel(logging.DEBUG)

@@ -25,9 +25,15 @@ def main():
     parser.add_argument('--upwelling-integration-time','-U',dest="upwelling",default=[],nargs='*',metavar="NAME:TIME",help="set the upwelling integration time of spectrometer NAME to TIME (in ms)")
     parser.add_argument('-n','--number-cycles',metavar='N',type=int,default=1,help="set the number of cycles, default=1")
     parser.add_argument('-d','--delay',type=float,metavar='D',default=0.,help="delay between measurements in ms, default=0")
+    parser.add_argument('-v','--version',action='store_true',default=False,help="print version and exit")
 
     args = parser.parse_args()
 
+    if args.version:
+        from client import __version__
+        print __version__
+        sys.exit(0)
+    
     # Which port is the Pixhawk trigger signal connected to? It should be on GPIO
     # port 12, but can be moved if necessary, Avoid ports 5, 17, 18, 22, 23, 24, 25
     # and 27 as these are used by the Piccolo's shutters and LEDs.
