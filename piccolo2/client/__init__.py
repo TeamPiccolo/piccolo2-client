@@ -29,6 +29,14 @@ execute the info method of the piccolo component
  >>> print piccolo.piccolo.info()
 
 """
+
+from pkg_resources import get_distribution, DistributionNotFound
+try:
+    __version__ = get_distribution('piccolo2-client').version
+except DistributionNotFound:
+    # package is not installed
+    pass
+
 from piccolo2.PiccoloSpectra import *
 from PiccoloBaseClient import *
 from PiccoloJSONRPCClient import *
