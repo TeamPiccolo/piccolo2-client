@@ -1,5 +1,6 @@
 include README.md
 include COPYING
 include ChangeLog
+include piccolo2.yml
 recursive-include docs *.rst *.py Makefile 
 recursive-include docs/images *
