@@ -109,8 +109,14 @@ class PiccoloBaseClient(object):
             if not isinstance(result,PiccoloSpectraList):
                 result = PiccoloSpectraList(data=result)
         elif command == 'status':
-            if not isinstance(result,PiccoloStatus):
-                result = PiccoloStatus(result)
+            if len(result) == 2:
+                status,estatus = result
+            else:
+                status = result
+                estatus = None
+            if not isinstance(status,PiccoloStatus):
+                status = PiccoloStatus(status)
+            result = status,estatus
         return result
 
     def __getattr__(self,attr):

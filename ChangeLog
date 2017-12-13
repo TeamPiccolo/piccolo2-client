@@ -1,3 +1,6 @@
+2017-12-13 Magnus Hagdorn
+ * piccolo2/client/PiccoloBaseClient.py: handle extended status
+
 2017-11-06 Magnus Hagdorn
  * piccolo2/precord.py: add option to print version
  * piccolo2/ptriggered.py: ditto and rename
