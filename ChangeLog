@@ -1,3 +1,6 @@
+2018-04-18 Magnus Hagdorn
+ * piccolo2/ptriggered.py: updated trigger script
+
 2017-12-13 Magnus Hagdorn
  * piccolo2/client/PiccoloBaseClient.py: handle extended status
 

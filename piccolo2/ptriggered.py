@@ -19,12 +19,14 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true',default=False,help="enable debugging output")
+    parser.add_argument('-u','--piccolo-url',metavar='URL',default='http://localhost:8080',help='set the URL of the piccolo server, default http://localhost:8080')
     parser.add_argument('--list-spectrometers','-l',action='store_true',default=False,help="list connected spectormeters and exist")
-    parser.add_argument('--auto-integration-time','-a',action='store_true',default=False,help="determine autointegration time automatically at start up time")
+    parser.add_argument('--auto-integration','-a',type=int,help="determine autointegration time automatically. set to 0 to do so once at the beginning of each batch or to n to rerun after each n sequences.")
     parser.add_argument('--downwelling-integration-time','-D',dest="downwelling",default=[],nargs='*',metavar="NAME:TIME",help="set the downwelling integration time of spectrometer NAME to TIME (in ms)")
     parser.add_argument('--upwelling-integration-time','-U',dest="upwelling",default=[],nargs='*',metavar="NAME:TIME",help="set the upwelling integration time of spectrometer NAME to TIME (in ms)")
-    parser.add_argument('-n','--number-cycles',metavar='N',type=int,default=1,help="set the number of cycles, default=1")
-    parser.add_argument('-d','--delay',type=float,metavar='D',default=0.,help="delay between measurements in ms, default=0")
+    parser.add_argument('-r','--current-run',metavar='RUN',help="set the name of the current run")
+    parser.add_argument('-n','--number-sequences',metavar='N',type=int,help="set the number of sequences, default=1")
+    parser.add_argument('-d','--delay',type=float,metavar='D',help="delay between measurements in ms, default=0")
     parser.add_argument('-v','--version',action='store_true',default=False,help="print version and exit")
 
     args = parser.parse_args()
@@ -37,7 +39,9 @@ def main():
     # Which port is the Pixhawk trigger signal connected to? It should be on GPIO
     # port 12, but can be moved if necessary, Avoid ports 5, 17, 18, 22, 23, 24, 25
     # and 27 as these are used by the Piccolo's shutters and LEDs.
-    port = 12 # Should be on GPIO 12.
+    trigger_port = 12 # Should be on GPIO 12.
+    reset_port = 20 # used to reset signal
+    
 
     # Set up logging.
     log = logging.getLogger("piccolo")
@@ -51,9 +55,9 @@ def main():
     log.addHandler(handler)
 
     # Connect.
-    log.info('Running Piccolo Client...')
-    log.info('Connecting to Piccolo Server...')
-    piccolo = PiccoloJSONRPCClient('http://localhost:8080')
+    log.info('Running Piccolo Client')
+    log.info('Connecting to Piccolo Server %s'%args.piccolo_url)
+    piccolo = PiccoloJSONRPCClient(args.piccolo_url)
 
     # Now need a list of spectrometers. Note that spectrometer "names" are slightly
     # different to their serial numberrs. They generall start with "S_". Example:
@@ -94,51 +98,65 @@ def main():
                 piccolo.piccolo.setIntegrationTimeManual(
                     shutter=d,spectrometer=s,milliseconds=integrationTimes[d][s])
 
-    # Whether auto or manual, write the integration times to the log.
+    if args.current_run is not None:
+        piccolo.piccolo.setCurrentRun(cr=args.current_run)                
+    if args.auto_integration is not None:
+        piccolo.piccolo.setAuto(auto=args.auto_integration)
+    if args.delay is not None:
+        piccolo.piccolo.setDelay(delay=args.delay)
+    if args.number_sequences is not None:
+        piccolo.piccolo.setNCycles(ncycles=args.number_sequences)
+
+    # log current settings
     for s in spectrometers:
         up = piccolo.piccolo.getIntegrationTime(shutter='upwelling', spectrometer=s)
         down = piccolo.piccolo.getIntegrationTime(shutter='downwelling', spectrometer=s)
         log.info('Spectrometer {}, upwelling {} ms, downwelling {} ms'.format(s, up, down))
-
+    log.info('Autointegration: %d'%piccolo.piccolo.getAuto())
+    log.info('Number of Sequences: %d'%piccolo.piccolo.getNCycles())
+    log.info('Delay: %f'%piccolo.piccolo.getDelay())
+    log.info('Batch Name: %s'%piccolo.piccolo.getCurrentRun())
+        
     # Configure the GPIO port to receive a trigger signal from a Pixhawk autopilot.
-    log.info('Setting port GPIO12 to receive the Pixhawk trigger...')
+    log.info('Setting port GPIO %d to receive the trigger...'%trigger_port)
     gpio.setmode(gpio.BCM)
-    gpio.setup(port, gpio.IN)
-    trigger = gpio.input(port)
-    if trigger:
+    gpio.setup(trigger_port, gpio.IN)
+    gpio.setup(reset_port, gpio.OUT)
+    
+    if gpio.input(trigger_port):
         # If the trigger signal is high initially this probably indicates an electronics problem. Check the connections. The LED
         log.error('Cannot start Piccolo Client because the Pixhawk trigger signal is active (high). Check that the trigger signal from the Pixhawk is connected and that it is low. The Pixhawk trigger LED should be off.')
-        sys.exit(1)
-    log.info('Finished setting up port ')
+        log.info('waiting to reset trigger')
+    while gpio.input(trigger_port):
+        pass
+    log.debug('Finished setting up port ')
 
-    # Wait for the trigger input from the Pixhawk.
-    autoIntegrationDone = False
+
     while True: # This is an infinite loop!
-        trigger = gpio.input(port)
+        log.info('waiting for trigger')
+        try:
+            while not gpio.input(trigger_port):
+                pass
+        except KeyboardInterrupt:
+            break
+        log.debug('got trigger')
+
         try:
            status = piccolo.piccolo.status()
         except:
-           log.warn('could not get status, trying again')
-           continue
+            log.warn('could not get status, trying again')
+            continue
 
-        if trigger == 1 and not status.busy:
-            log.info('Got trigger signal. Starting measurements.')
+        if not status.busy:
+            log.info('start recording')
+            piccolo.piccolo.record()
+           
+        time.sleep(0.1)
+        # reset trigger board
+        gpio.output(reset_port, 1)
+        sleep(0.01)
+        gpio.output(reset_port, 0)
 
-            if not autoIntegrationDone and args.auto_integration_time:
-                log.info('Setting integration times automatically...')
-                piccolo.piccolo.setIntegrationTimeAuto()
-
-                log.debug('Waiting for autointegration to complete...')
-                results = piccolo.piccolo.checkAutoIntegrationResults(block=True)
-                log.debug('Autointegration completed')
-                autoIntegrationDone = True
-
-            # delay is the time in seconds between recordings.
-            piccolo.piccolo.record(delay=args.delay,nCycles=args.number_cycles)
-        else:
-            log.debug('waiting for trigger signal')
-
-        time.sleep(1)
-
+    log.info('done')
 if __name__ == '__main__':
     main()
