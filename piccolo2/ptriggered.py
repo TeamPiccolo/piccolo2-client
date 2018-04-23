@@ -142,7 +142,7 @@ def main():
         log.debug('got trigger')
 
         try:
-           status = piccolo.piccolo.status()
+           status = piccolo.piccolo.status()[0]
         except:
             log.warn('could not get status, trying again')
             continue
@@ -154,7 +154,7 @@ def main():
         time.sleep(0.1)
         # reset trigger board
         gpio.output(reset_port, 1)
-        sleep(0.01)
+        time.sleep(0.01)
         gpio.output(reset_port, 0)
 
     log.info('done')
