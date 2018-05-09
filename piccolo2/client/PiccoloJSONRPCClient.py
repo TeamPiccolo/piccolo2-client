@@ -28,9 +28,13 @@ class PiccoloJSONRPCClient(PiccoloBaseClient):
         :param url: URL of piccolo server
         :type url: str
         """
-        self._http_client = pyjsonrpc.HttpClient(url=url)
+        self._url = url
         PiccoloBaseClient.__init__(self)
 
+    def connect(self):
+        self._http_client = pyjsonrpc.HttpClient(url=self._url)
+        PiccoloBaseClient.connect(self)
+        
     def invoke(self,command,component=None,keywords={}):
         """method used to call remote procedures
         

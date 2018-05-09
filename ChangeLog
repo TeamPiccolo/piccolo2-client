@@ -1,3 +1,17 @@
+2018-05-09 Magnus Hagdorn
+ * piccolo2/client/PiccoloBaseClient.py: add methods to use client as a
+   context manager; add new method to connect to piccolo server rather than
+   connecting automatically when object is created
+ * piccolo2/client/PiccoloJSONRPCClient.py: implement new connect method
+ * piccolo2/client/PiccoloXbeeClient.py: ditto
+ * piccolo2/client/piccoloConnect.py: add new helper context manager that
+   opens either a jsonrpc or xbee connection depending on an argument
+ * piccolo2/client/__init__.py: load new module
+ * piccolo2/precord.py: use context manager to open connection to piccolo
+   server
+ * piccolo2/ptriggered.py: ditto
+ * piccolo-client.py: ditto
+
 2018-04-23 Magnus Hagdorn
  * piccolo2/ptriggered.py: fix minor bugs
 

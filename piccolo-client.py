@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with piccolo2-client.  If not, see <http://www.gnu.org/licenses/>.
 
-from piccolo2.client import PiccoloJSONRPCClient, PiccoloXbeeClient
+from piccolo2.client import piccoloConnect
 import datetime
 import argparse
 import logging
@@ -39,55 +39,57 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.xbee_address!=None:
-        piccolo = PiccoloXbeeClient(args.xbee_address)
-    else:    
-        piccolo = PiccoloJSONRPCClient(args.piccolo_url)
-    
-    #if not piccolo.piccolo.isMountedDataDir():
-    #    piccolo.piccolo.mountDatadir()
-
-    if args.download_spectra != None:
-        spectraList = piccolo.piccolo.getSpectraList()
-        spectra = piccolo.piccolo.getSpectra(fname=spectraList[0])
-        n = -1
-        while not spectra.complete:
-            if n!=spectra.chunk:
-                n = spectra.chunk
-                print spectra.chunk,spectra.NCHUNKS
-        print 'done'
-        print len(spectra)
+        ctype = 'xbee'
+        pargs = args.xbee_address
     else:
+        ctype = 'jsonrpc'
+        pargs = args.piccolo_url
     
-        print piccolo.components
-        print piccolo.piccolo.info()
-        print piccolo.piccolo.ping()
+    
+    with piccoloConnect(ctype,pargs) as piccolo:
 
-        print 'njobs',piccolo.scheduler.njobs()
+        if args.download_spectra != None:
+            spectraList = piccolo.piccolo.getSpectraList()
+            spectra = piccolo.piccolo.getSpectra(fname=spectraList[0])
+            n = -1
+            while not spectra.complete:
+                if n!=spectra.chunk:
+                    n = spectra.chunk
+                    print spectra.chunk,spectra.NCHUNKS
+            print 'done'
+            print len(spectra)
+        else:
 
-        at = datetime.datetime.now()+datetime.timedelta(seconds=5)
-        end = at+datetime.timedelta(seconds=30)
-        print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
+            print piccolo.components
+            print piccolo.piccolo.info()
+            print piccolo.piccolo.ping()
 
-        print 'njobs',piccolo.scheduler.njobs()
-        print piccolo.scheduler.getJob(jid=0)
+            print 'njobs',piccolo.scheduler.njobs()
 
-        #print piccolo.piccolo.getClock()
-        #print piccolo.piccolo.setClock(clock='2017-10-2')
+            at = datetime.datetime.now()+datetime.timedelta(seconds=5)
+            end = at+datetime.timedelta(seconds=30)
+            print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
 
-        print piccolo.piccolo.isMountedDataDir()
+            print 'njobs',piccolo.scheduler.njobs()
+            print piccolo.scheduler.getJob(jid=0)
 
-        #piccolo.upwelling.open_close(milliseconds=3000)
-        #piccolo.downwelling.open_close(milliseconds=3000)
-        #print piccolo.upwelling.info()
+            #print piccolo.piccolo.getClock()
+            #print piccolo.piccolo.setClock(clock='2017-10-2')
 
-        piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test1',milliseconds=2000)
-        piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test3',milliseconds=3000)
+            print piccolo.piccolo.isMountedDataDir()
 
-        piccolo.piccolo.record(delay=5,nCycles=5)
+            #piccolo.upwelling.open_close(milliseconds=3000)
+            #piccolo.downwelling.open_close(milliseconds=3000)
+            #print piccolo.upwelling.info()
 
-        at = datetime.datetime.now()+datetime.timedelta(seconds=120)
-        piccolo.piccolo.record(delay=5,nCycles=2,at_time=at.isoformat())
+            piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test1',milliseconds=2000)
+            piccolo.piccolo.setIntegrationTime(shutter='downwelling',spectrometer='test3',milliseconds=3000)
+
+            piccolo.piccolo.record(delay=5,nCycles=5)
+
+            at = datetime.datetime.now()+datetime.timedelta(seconds=120)
+            piccolo.piccolo.record(delay=5,nCycles=2,at_time=at.isoformat())
 
 
-        #if piccolo.piccolo.isMountedDataDir():
-        #    piccolo.piccolo.umountDatadir()
+            #if piccolo.piccolo.isMountedDataDir():
+            #    piccolo.piccolo.umountDatadir()
