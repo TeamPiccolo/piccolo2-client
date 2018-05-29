@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with piccolo2-server.  If not, see <http://www.gnu.org/licenses/>.
 
-from client import PiccoloJSONRPCClient, PiccoloXbeeClient
+from client import piccoloConnect
 import datetime
 import argparse
 import logging
@@ -48,11 +48,14 @@ def main():
     log.addHandler(handler)
     
     if args.xbee_address != None:
-        piccolo = PiccoloXbeeClient(args.xbee_address)
+        ctype = 'xbee'
+        pargs = args.xbee_address
     else:
-        piccolo = PiccoloJSONRPCClient(args.piccolo_url)
+        ctype = 'jsonrpc'
+        pargs = args.piccolo_url
 
-    piccolo.piccolo.record(delay=args.delay,nCycles=args.number_cycles)
+    with piccoloConnect(ctype,pargs) as piccolo:
+        piccolo.piccolo.record(delay=args.delay,nCycles=args.number_cycles)
 
 if __name__ == '__main__':
     main()

@@ -15,30 +15,27 @@
 # You should have received a copy of the GNU General Public License
 # along with piccolo2-client.  If not, see <http://www.gnu.org/licenses/>.
 
-"""piccolo client module
-
-.. moduleauthor: Magnus Hagdorn <magnus.hagdorn@ed.ac.uk>
-
-Example
--------
-connect to piccolo server running on localhost
- >>> piccolo = PiccoloJSONRPCClient("http://localhost:8080")
-get the list of components
- >>> print piccolo.components
-execute the info method of the piccolo component
- >>> print piccolo.piccolo.info()
+"""
+.. moduleauthor:: Magnus Hagdorn <magnus.hagdorn@ed.ac.uk>
 
 """
 
-from pkg_resources import get_distribution, DistributionNotFound
-try:
-    __version__ = get_distribution('piccolo2-client').version
-except DistributionNotFound:
-    # package is not installed
-    pass
+__all__ = ["piccoloConnect"]
 
-from piccolo2.PiccoloSpectra import *
-from PiccoloBaseClient import *
 from PiccoloJSONRPCClient import *
 from PiccoloXbeeClient import *
-from piccoloConnect import *
+from contextlib import contextmanager
+
+@contextmanager
+def piccoloConnect(clientType,address,panid='2525'):
+
+    if clientType == 'xbee':
+        piccolo = PiccoloXbeeClient(address,panid=panid)
+    elif clientType == 'jsonrpc':
+        piccolo = PiccoloJSONRPCClient(address)
+    else:
+        raise ValueError, 'unkown piccolo client type type %s'%lientType
+
+    piccolo.connect()
+    yield piccolo
+    piccolo.disconnect()
