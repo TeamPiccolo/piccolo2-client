@@ -18,7 +18,7 @@
 # along with piccolo2-client.  If not, see <http://www.gnu.org/licenses/>.
 
 from piccolo2.client import piccoloConnect
-import datetime
+import datetime, pytz
 import argparse
 import logging
 import time
@@ -36,6 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('-u','--piccolo-url',metavar='URL',default='http://localhost:8080',help='set the URL of the piccolo server, default http://localhost:8080')
     parser.add_argument('-x','--xbee-address',metavar='ADR',help="xbee address")
     parser.add_argument('-d','--download-spectra',type=int,metavar='ID',help="download set of spectra with ID")
+    parser.add_argument('-s','--set-time',default=False,action='store_true',help="set the time to current time")
     args = parser.parse_args()
 
     if args.xbee_address!=None:
@@ -44,9 +45,15 @@ if __name__ == '__main__':
     else:
         ctype = 'jsonrpc'
         pargs = args.piccolo_url
-    
+
     
     with piccoloConnect(ctype,pargs) as piccolo:
+        if args.set_time:
+            now = datetime.datetime.now(tz=pytz.utc)
+            print piccolo.piccolo.getClock()
+            piccolo.piccolo.setClock(clock=now.isoformat())
+            print piccolo.piccolo.getClock()
+                        
 
         if args.download_spectra != None:
             spectraList = piccolo.piccolo.getSpectraList()
@@ -66,7 +73,7 @@ if __name__ == '__main__':
 
             print 'njobs',piccolo.scheduler.njobs()
 
-            at = datetime.datetime.now()+datetime.timedelta(seconds=5)
+            at = datetime.datetime.now(tz=pytz.utc)+datetime.timedelta(seconds=5)
             end = at+datetime.timedelta(seconds=30)
             print piccolo.piccolo.ping(at_time=at.isoformat(),interval=5.,end_time=end.isoformat())
 
@@ -87,7 +94,7 @@ if __name__ == '__main__':
 
             piccolo.piccolo.record(delay=5,nCycles=5)
 
-            at = datetime.datetime.now()+datetime.timedelta(seconds=120)
+            at = datetime.datetime.now(tz=pytz.utc)+datetime.timedelta(seconds=120)
             piccolo.piccolo.record(delay=5,nCycles=2,at_time=at.isoformat())
 
 
