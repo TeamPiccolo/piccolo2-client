@@ -27,6 +27,7 @@ def main():
     parser.add_argument('-r','--current-run',metavar='RUN',help="set the name of the current run")
     parser.add_argument('-n','--number-sequences',metavar='N',type=int,help="set the number of sequences, default=1")
     parser.add_argument('-d','--delay',type=float,metavar='D',help="delay between measurements in ms, default=0")
+    parser.add_argument('-s','--simulate-trigger',action='store_true',default=False,help='always trigger, useful for debugging')
     parser.add_argument('-v','--version',action='store_true',default=False,help="print version and exit")
 
     args = parser.parse_args()
@@ -134,11 +135,14 @@ def main():
 
         while True: # This is an infinite loop!
             log.info('waiting for trigger')
-            try:
-                while not gpio.input(trigger_port):
-                    pass
-            except KeyboardInterrupt:
-                break
+            if args.simulate_trigger:
+                time.sleep(1)
+            else:
+                try:
+                    while not gpio.input(trigger_port):
+                        pass
+                except KeyboardInterrupt:
+                    break
             log.debug('got trigger')
 
             try:
