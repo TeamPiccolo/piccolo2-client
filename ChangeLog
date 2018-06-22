@@ -1,3 +1,6 @@
+2018-06-15 Magnus Hagdorn
+ * piccolo-client.py: handle timezone
+
 2018-05-09 Magnus Hagdorn
  * piccolo2/client/PiccoloBaseClient.py: add methods to use client as a
    context manager; add new method to connect to piccolo server rather than
