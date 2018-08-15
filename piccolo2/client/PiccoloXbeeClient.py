@@ -26,8 +26,8 @@ except ImportError:
     print 'Warning, cannot load hardware module'
     haveHardware = False
 
-from piccolo2.PiccoloWorkerThread import PiccoloWorkerThread
-from piccolo2.PiccoloSpectra import PiccoloSpectraList
+from piccolo2.common import PiccoloWorkerThread
+from piccolo2.common import PiccoloSpectraList
 import threading
 from Queue import Queue, Empty
 import logging

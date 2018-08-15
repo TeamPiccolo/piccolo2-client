@@ -1,3 +1,8 @@
+2018-08-15 Magnus Hagdorn
+ * piccolo2/client/PiccoloBaseClient.py: adjust import from piccolo2.common
+ * piccolo2/client/PiccoloXbeeClient.py: ditto
+ * piccolo2/client/__init__.py: ditto
+
 2017-12-13 Magnus Hagdorn
  * piccolo2/client/PiccoloBaseClient.py: handle extended status
 

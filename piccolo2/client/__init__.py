@@ -37,7 +37,7 @@ except DistributionNotFound:
     # package is not installed
     pass
 
-from piccolo2.PiccoloSpectra import *
+from piccolo2.common import PiccoloSpectraList, PiccoloSpectrum
 from PiccoloBaseClient import *
 from PiccoloJSONRPCClient import *
 from PiccoloXbeeClient import *

@@ -21,8 +21,8 @@
 """
 
 __all__ = ["PiccoloClientError","PiccoloComponentClient","PiccoloBaseClient"]
-from piccolo2.PiccoloSpectra import PiccoloSpectraList
-from piccolo2.PiccoloStatus import PiccoloStatus
+from piccolo2.common import PiccoloSpectraList
+from piccolo2.common import PiccoloStatus
 
 class PiccoloClientError(RuntimeError):
     """
