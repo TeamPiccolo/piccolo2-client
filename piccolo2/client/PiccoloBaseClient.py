@@ -58,12 +58,7 @@ class PiccoloBaseClient(object):
     """
     def __init__(self):
         self._components = {}
-        self._listenerID = self.call('getListenerID','piccolo')
-        for c in self.call('components'):
-            self._components[c] = PiccoloComponentClient(c,self)
-
-    def __del__(self):
-        self.call('removeListener','piccolo',keywords={"listener":self._listenerID})
+        self._listenerID = None
 
     @property
     def listenerID(self):
@@ -74,6 +69,21 @@ class PiccoloBaseClient(object):
         """get list of piccolo remote components"""
         return self._components.keys()
 
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, type, value, tb):
+        self.disconnect()
+    
+    def connect(self):
+        self._listenerID = self.call('getListenerID','piccolo')
+        for c in self.call('components'):
+            self._components[c] = PiccoloComponentClient(c,self)
+
+    def disconnect(self):
+        self.call('removeListener','piccolo',keywords={"listener":self._listenerID})
+    
     def invoke(self,command,component=None,keywords={}):
         """method used to call remote procedures
         

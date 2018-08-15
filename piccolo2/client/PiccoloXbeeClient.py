@@ -131,22 +131,31 @@ class PiccoloXbeeClient(PiccoloBaseClient):
         :param panid: the panid"""
 
 
+        self._address = address
+        self._panid = panid
+
         self._busy = threading.Lock()
         self._tQ = Queue()
         self._rQ = Queue()
         self._spectraCache = PiccoloSpectraList()
-        self._xbeeWorker = XbeeClientThread(address,panid,self._spectraCache,
+        self._xbeeWorker = None
+        
+        PiccoloBaseClient.__init__(self)
+
+    def connect(self):
+        self._xbeeWorker = XbeeClientThread(self._address,self._panid,self._spectraCache,
                                             self._busy,self._tQ,self._rQ)
 
         self._xbeeWorker.start()
-        PiccoloBaseClient.__init__(self)
+        PiccoloBaseClient.connect(self)
 
-
-    def __del__(self):
+    def disconnect(self):
+        PiccoloBaseClient.disconnect(self)
         # send poison pill to worker
-        self._tQ.put(None)
-        #PiccoloBaseClient.__del__()
-
+        if self._xbeeWorker is not None:
+            self._tQ.put(None)
+            self._xbeeWorker.join()
+        
     def invoke(self,command,component=None,keywords={}):
         """method used to call remote procedures
 
